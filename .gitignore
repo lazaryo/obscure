@@ -1,2 +1,6 @@
 #stuff to be ignored goes here
-.git/
+api/vendor/
+
+api/error_log
+
+word.php
