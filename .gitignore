@@ -1,7 +1,9 @@
 #stuff to be ignored goes here
 api/vendor/
-
 api/error_log
-
 word.php
 new-sorrow.php
+_resources/old-hupd.php
+_resources/process-sorrow.php
+_resources/search.backup.php
+api/composer.lock
