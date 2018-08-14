@@ -1,6 +1,11 @@
-<IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 [L] 
-</IfModule>
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "POST, GET"
+Header set Access-Control-Max-Age "3600"
+Header set Access-Control-Allow-Headers "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+# Header set Content-Type "application/json"
+Header set cache-control 'no-cache'

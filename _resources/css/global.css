@@ -66,6 +66,11 @@ html, body {
     margin: 0 0 30px 0;
 }
 
-#entry, #sorrow {
+#entry, #sorrow, #quote, #entry-range {
     margin-top: 15px;
+}
+
+#entry-range-container div {
+    width: 50%;
+    display: inline-block;
 }

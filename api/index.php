@@ -1,222 +1,312 @@
 <?php
-    require __DIR__ . '/vendor/autoload.php';
-    include_once '../_resources/connect.php';
+
+    require 'vendor/autoload.php';
+
+    Flight::set('flight.log_errors', true);
+
+    Flight::route('/', function(){
+        Flight::render('home.php');
+    });
+
+    Flight::route('/dictionary', function(){
+//        include_once '../_resources/connect.php';
+        include_once '../_resources/php/connect-dev.php';
+
+        $sorrows = array();
+        
+        $prestmt = 'SELECT * FROM words ORDER BY entry ASC';
+        
+        $stmt = $pdo->query($prestmt);
+        while ($row = $stmt->fetch()) {
+            foreach ($row as $key => $value) { 
+                $sorrows[$row['entry']] = $row;
+            }
+        }
+        echo json_encode($sorrows, JSON_PRETTY_PRINT);
+    });
+
+    Flight::route('/random', function(){
+//        include_once '../_resources/connect.php';
+        include_once '../_resources/php/connect-dev.php';
+        
+        //get max entry in DB
+        $prestmt = 'SELECT entry FROM words ORDER BY entry DESC LIMIT 0, 1';
+
+        $stmt = $pdo->query($prestmt);
+        while ($row = $stmt->fetch()) {
+            $max = $row['entry'];
+        }
+        
+        //get a random number
+        $rn = $n = rand(1, $max);
+        
+        //get random word based on a $rn
+        $prestmt = "SELECT * FROM words WHERE entry = ?";
+        
+        $stmt = $pdo->prepare($prestmt);
+        $stmt->execute([$rn]);
+        while ($row = $stmt->fetch()) {
+            echo json_encode($row, JSON_PRETTY_PRINT);
+        };
     
-    $app = new Slim\App;
-
-//    $app->add(function ($request, $response, $next) {
-//        return $response->withHeader('Acess-Control-Allow-Methods', 'GET, OPTIONS')
-//            ->withAddedHeader('Access-Control-Allow-Origin', '*')
-//            ->withAddedHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
-//            ->withHeader('Content-type', 'application/json; charset=utf-8');
-//    });
-
-    $app->add(function ($req, $res, $next) {
-        $response = $next($req, $res);
-        return $response
-                ->withHeader('Access-Control-Allow-Origin', '*')
-                ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
-                ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     });
 
-
-    // Get container
-    $container = $app->getContainer();
-
-    // Register component on container
-    $container['view'] = function ($container) {
-        $view = new \Slim\Views\Twig('../_resources/templates', [
-            'cache' => false
-        ]);
-
-        // Instantiate and add Slim specific extension
-        $basePath = rtrim(str_ireplace('index.php', '', $container['request']->getUri()->getBasePath()), '/');
-        $view->addExtension(new Slim\Views\TwigExtension($container['router'], $basePath));
-
-        return $view;
-    };
-
-    // Render Twig template in route
-    $app->get('/', function ($request, $response, $args) {
-        return $this->view->render($response, 'home.html', [
-            'name' => 'home'
-        ]);
-    })->setName('home');
-
-    $app->get('/dictionary', function ($request, $response, $args) {
-        get_dictionary();
-    });
-
-    $app->get('/speech/{speech}', function ($request, $response, $args) {
-        get_words_by_speech($args['speech']);
-    });
-
-    $app->get('/video/{video}', function ($request, $response, $args) {
-        get_words_by_video($args['video']);
-    });
-
-    $app->get('/dictionary/letter/{letter}', function ($request, $response, $args) {
-        get_word_by_letter($args['letter']);
-    });
-
-    $app->get('/dictionary/entry/{entry}', function ($request, $response, $args) {   
-        get_word_by_entry($args['entry']);
-    });
-
-    $app->get('/random', function($request, $response, $args) {
-        get_random_word();
-    });
-
-    $app->get('/word/{word}', function($request, $response, $args) {
-        get_word($args['word']);
-    });
-
-    $app->run();
-
-    function get_word($word) {
-        try {
-            $database = new Connection();
-            $db = $database->openConnection();
+    Flight::route('/word/@word', function($word){
+//        include_once '../_resources/connect.php';
+        include_once '../_resources/php/connect-dev.php';
+        
+        if (!empty($word)) {
             
-            $sql = 'SELECT * FROM words WHERE title="' . $word . '"';
-            foreach ($db->query($sql) as $row) {
+            //determine if $word is even in the dictionary
+            $prestmt = 'SELECT * FROM words WHERE title = ?';
+        
+            $stmt = $pdo->prepare($prestmt);
+            $stmt->execute([$word]);
+            while ($row = $stmt->fetch()) {
                 echo json_encode($row, JSON_PRETTY_PRINT);
+            };   
+        } else {
+            $uhOh = array("error"=> "Missing word value.");
+            echo json_encode($uhOh, JSON_PRETTY_PRINT);
+        }
+    
+    });
+
+    Flight::route('/dictionary/entry(/@entry)', function($entry){
+//        include_once '../_resources/connect.php';
+        include_once '../_resources/php/connect-dev.php';
+        
+        if (!empty($entry)) {
+            if (is_numeric($entry)) {
+                $prestmt = 'SELECT * FROM words WHERE entry = ?';
+        
+                $stmt = $pdo->prepare($prestmt);
+                $stmt->execute([$entry]);
+                while ($row = $stmt->fetch()) {
+                    echo json_encode($row, JSON_PRETTY_PRINT);
+                };
+            } else {
+                $uhOh = array("error"=> $entry . " is not a number.");
+                echo json_encode($uhOh, JSON_PRETTY_PRINT);
+            }
+        } else {
+            $uhOh = array("error"=> "Missing entry value.");
+            echo json_encode($uhOh, JSON_PRETTY_PRINT);
+        }
+    
+    });
+
+    Flight::route('/dictionary/entry-range(/@min(/@max))', function($min, $max){
+//        include_once '../_resources/connect.php';
+        include_once '../_resources/php/connect-dev.php';
+        
+        if (empty($min) && empty($max)) {
+            $uhOh = array("error"=> "Missing min and max values. Min value is required at the least.");
+            echo json_encode($uhOh, JSON_PRETTY_PRINT);
+        } else if (empty($max)) {
+            
+            $prestmt = 'SELECT entry FROM words ORDER BY entry DESC LIMIT 0, 1';
+
+            $stmt = $pdo->query($prestmt);
+            while ($row = $stmt->fetch()) {
+                $maxEntry = $row['entry'];
             }
             
-            $db = $database->closeConnection();
-        } catch (PDOException $e) {
-            echo "There is some problem in connection: " . $e->getMessage();
-        }
-    }
-
-    function get_word_by_entry($entry) {
-        try {
-            $database = new Connection();
-            $db = $database->openConnection();
-            
-            $sql = 'SELECT * FROM words WHERE entry="' . $entry . '"';
-            foreach ($db->query($sql) as $row) {
-                echo json_encode($row, JSON_PRETTY_PRINT);
-            }
-            
-            $db = $database->closeConnection();
-        } catch (PDOException $e) {
-            echo "There is some problem in connection: " . $e->getMessage();
-        }
-    }
-
-    function get_word_by_letter($letter) {
-        try {
-            $database = new Connection();
-            $db = $database->openConnection();
-            
-            $sql = "SELECT * FROM words WHERE title REGEXP '^[".$letter."].*$'";
+            $prestmt = 'SELECT * FROM words WHERE entry BETWEEN ? AND ? ORDER BY entry';
             $sorrows = array();
-            foreach ($db->query($sql) as $row) {
-                array_push($sorrows, $row);
+
+            $stmt = $pdo->prepare($prestmt);
+            $stmt->execute([$min, $maxEntry]);
+            while ($row = $stmt->fetch()) {
+                foreach ($row as $key => $value) { 
+                    $sorrows[$row['entry']] = $row;
+                }
+            };
+            echo json_encode($sorrows, JSON_PRETTY_PRINT);
+        } else if ($min > $max) {
+            $uhOh = array("error"=> "Min value is higher than the max. The min value must be at least the same as the max or lower.");
+            echo json_encode($uhOh, JSON_PRETTY_PRINT);
+        } else {
+            $prestmt = 'SELECT * FROM words WHERE entry BETWEEN ? AND ? ORDER BY entry';
+            $sorrows = array();
+
+            $stmt = $pdo->prepare($prestmt);
+            $stmt->execute([$min, $max]);
+            while ($row = $stmt->fetch()) {
+                foreach ($row as $key => $value) { 
+                    $sorrows[$row['entry']] = $row;
+                }
+            };
+            echo json_encode($sorrows, JSON_PRETTY_PRINT);
+        }
+    });
+                  
+    Flight::route('/quote(/@word)', function($word){
+//        include_once '../_resources/connect.php';
+        include_once '../_resources/php/connect-dev.php';
+        
+        if (!empty($word)) {
+            $prestmt = 'SELECT * FROM words WHERE title = ?';
+
+            $stmt = $pdo->prepare($prestmt);
+            $stmt->execute([$word]);
+            if ($stmt->rowCount() > 0) {
+                while ($row = $stmt->fetch()) {
+                    if ($row['hasQuotes']) {
+                        if (tableExists($pdo, $word)) {
+                            $prestmt = 'SELECT id FROM ' . $word . ' ORDER BY id DESC LIMIT 0, 1';
+
+                            $stmt = $pdo->query($prestmt);
+                            while ($row = $stmt->fetch()) {
+                                $max = $row['id'];
+                            }
+                            $pdo = $row = $stmt = null;
+
+                            $rn = $n = rand(1, $max);
+                            
+                            $pdo = new PDO($dsn, $user, $pass, $opt);
+                            $prestmt = "SELECT * FROM " . $word . " WHERE id = " . $rn;
+
+                            $stmt = $pdo->query($prestmt);
+                            $row = $stmt->fetch();
+                            echo json_encode($row, JSON_PRETTY_PRINT);
+                            $pdo = $row = $stmt = null;
+                            
+                        } else {
+                            $prestmt = 'SELECT * FROM words WHERE title = ?';
+
+                            $stmt = $pdo->prepare($prestmt);
+                            $stmt->execute([$word]);
+                            while ($row = $stmt->fetch()) {
+                                $randomQuote = array('word'=> $row['title'], 'hasQuotes'=> $row['hasQuotes'], 'quote'=> null, 'video'=> $row['video'], 'error'=> 'There are no quotes from this word in the database.');
+                                echo json_encode($randomQuote, JSON_PRETTY_PRINT);          
+                            }
+                        }
+                    } else {
+                        $prestmt = 'SELECT * FROM words WHERE title = ?';
+
+                        $stmt = $pdo->prepare($prestmt);
+                        $stmt->execute([$word]);
+                        while ($row = $stmt->fetch()) {
+                        $randomQuote = array('word'=> $row['title'], 'hasQuotes'=> $row['hasQuotes'], 'quote'=> null, 'video'=> $row['video'], 'error'=> 'This word does not have any quotes.');
+                            echo json_encode($randomQuote, JSON_PRETTY_PRINT);          
+                        }
+                    }
+                }
+            } else {
+                $badWord = array('word'=> $word, 'hasQuotes'=> null, 'quote'=> null, 'video'=> null, 'error'=> 'This word does not exist in the Dictionary of Obscure Sorrows.');
+                echo json_encode($badWord, JSON_PRETTY_PRINT);          
+            };
+        } else {
+            $uhOh = array("error"=> "Please choose a word from the Dictionary of Obscure Sorrows.");
+            echo json_encode($uhOh, JSON_PRETTY_PRINT);
+        }
+
+    });
+
+    Flight::route('/dictionary/letter(/@letter)', function($letter){
+//        include_once '../_resources/connect.php';
+        include_once '../_resources/php/connect-dev.php';
+        
+        if (!empty($letter)) {
+            $sorrows = array();
+            $name = $letter."%";
+
+            $query = "SELECT * FROM `words` WHERE `title` like :name ORDER BY entry ASC";
+            $stmt = $pdo->prepare($query);
+            $stmt->bindParam(':name',$name);
+            $stmt->execute();
+            $stmt->setFetchMode(PDO::FETCH_ASSOC);
+            $data = $stmt->fetchALl();
+
+            foreach ($data as $key => $value) {
+                $sorrows[$value['entry']] = $value;
             }
             echo json_encode($sorrows, JSON_PRETTY_PRINT);
-            
-            $db = $database->closeConnection();
-        } catch (PDOException $e) {
-            echo "There is some problem in connection: " . $e->getMessage();
+        } else {
+            $uhOh = array("error"=> "Please select a letter to retrieve data from the API.");
+            echo json_encode($uhOh, JSON_PRETTY_PRINT);
         }
-    }
+    });
 
-    function get_dictionary() {
-        try {
-            $database = new Connection();
-            $db = $database->openConnection();
-            
-            $sql = "SELECT * FROM words ORDER BY entry ASC";
-            $sorrows = array();
-            foreach ($db->query($sql) as $row) {
-                array_push($sorrows, $row);
-            }
-            echo json_encode($sorrows, JSON_PRETTY_PRINT);
-            
-            $db = $database->closeConnection();
-        } catch (PDOException $e) {
-            echo "There is some problem in connection: " . $e->getMessage();
-        }
-    }
-
-    function get_words_by_speech($speech) {
-        try {
-            $database = new Connection();
-            $db = $database->openConnection();
-            
+    Flight::route('/speech(/@speech)', function($speech){
+//        include_once '../_resources/connect.php';
+        include_once '../_resources/php/connect-dev.php';
+        
+        if (!empty($speech)) {
             switch ($speech) {
                 case 'noun':
-                    $sql = 'SELECT * FROM words WHERE speech="noun"';
+                    $prestmt = 'SELECT * FROM words WHERE speech=?';
                     break;
                 case 'adjective':
-                    $sql = 'SELECT * FROM words WHERE speech="adjective"';
+                    $prestmt = 'SELECT * FROM words WHERE speech=?';
                     break;
                 default:
-                    $sql = 'SELECT * FROM words WHERE speech="noun"';
+                    $prestmt = 'SELECT * FROM words WHERE speech=?';
             }
-            
             $sorrows = array();
-            foreach ($db->query($sql) as $row) {
-                array_push($sorrows, $row);
+
+            $stmt = $pdo->prepare($prestmt);
+            $stmt->execute([$speech]);
+
+            while ($row = $stmt->fetch()) {
+                foreach ($row as $key => $value) { 
+                    $sorrows[$row['entry']] = $row;
+                }
             }
             echo json_encode($sorrows, JSON_PRETTY_PRINT);
-            
-            $db = $database->closeConnection();
-        } catch (PDOException $e) {
-            echo "There is some problem in connection: " . $e->getMessage();
+        } else {
+            $uhOh = array("error"=> "Please select a part of speech (adjective or noun) to retrieve data from the API.");
+            echo json_encode($uhOh, JSON_PRETTY_PRINT);
         }
-    }
+    });
 
-    function get_words_by_video($video) {
-        try {
-            $database = new Connection();
-            $db = $database->openConnection();
-            
+    Flight::route('/video(/@video)', function($video){
+//        include_once '../_resources/connect.php';
+        include_once '../_resources/php/connect-dev.php';
+        
+        if (!empty($video)) {
             switch ($video) {
                 case 'true':
-                    $sql = 'SELECT * FROM words WHERE video IS NOT NULL';
+                    $prestmt = 'SELECT * FROM words WHERE video IS NOT NULL';
                     break;
                 default:
-                    $sql = 'SELECT * FROM words WHERE video IS NULL';
+                    $prestmt = 'SELECT * FROM words WHERE video IS NULL';
             }
-            
             $sorrows = array();
-            foreach ($db->query($sql) as $row) {
-                array_push($sorrows, $row);
+
+            $stmt = $pdo->query($prestmt);
+            while ($row = $stmt->fetch()) {
+                foreach ($row as $key => $value) { 
+                    $sorrows[$row['entry']] = $row;
+                }
             }
             echo json_encode($sorrows, JSON_PRETTY_PRINT);
-            
-            $db = $database->closeConnection();
-        } catch (PDOException $e) {
-            echo "There is some problem in connection: " . $e->getMessage();
+        } else {
+            $uhOh = array("error"=> "Please make sure to have true or false to retrieve data may or may not provide a video link.");
+            echo json_encode($uhOh, JSON_PRETTY_PRINT);
         }
+    });
+
+    Flight::start();
+
+    function tableExists($pdo, $table) {
+
+        // Try a select statement against the table
+        // Run it in try/catch in case PDO is in ERRMODE_EXCEPTION.
+        try {
+            $result = $pdo->query("SELECT 1 FROM $table LIMIT 1");
+        } catch (Exception $e) {
+            // We got an exception == table not found
+            return FALSE;
+        }
+
+        // Result is either boolean FALSE (no table found) or PDOStatement Object (table found)
+        return $result !== FALSE;
     }
 
-    function get_random_word() {
-        try {
-            $database = new Connection();
-            $db = $database->openConnection();
-            
-            //get max entry in DB
-            $sql = 'SELECT entry FROM words ORDER BY entry DESC LIMIT 0, 1';
-            foreach ($db->query($sql) as $row) {
-                $max = $row['entry'];
-            }
-            $db = $database->closeConnection();
-            
-            $db = $database->openConnection();
-            
-            //get a random number
-            $rn = $n = rand(1, $max);
-            
-            $sql = "SELECT * FROM words WHERE entry = '" . $rn . "'";
-            foreach ($db->query($sql) as $row) {
-                echo json_encode($row, JSON_PRETTY_PRINT);
-            }
-        } catch (PDOException $e) {
-            echo "There is some problem in connection: " . $e->getMessage();
-        }
+    function modify($str) {
+        return str_replace(" ", "_", $str);
     }
+
 ?>

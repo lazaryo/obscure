@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <title>Obscure Sorrows Dictionary API</title>
         <link rel="stylesheet" href="../_resources/libs/bootstrap/bootstrap-4.0.0-alpha.6.min.css">
-        <link rel="stylesheet" href="../_resources/libs/fontawesome/font-awesome-4.6.1.min.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="../_resources/css/global.css" type="text/css">
     </head>
     <body>
@@ -26,6 +26,14 @@
                     
                 </select>
                 <a id="sorrow" href="#" class="btn btn-primary">Get Sorrow</a>
+            </div>
+
+            <div class="form-group">
+                <label class="mr-sm-2" for="rn-quote">Random Quote from an Obscure Sorrow</label>
+                <select class="custom-select form-control mb-2 mr-sm-2 mb-sm-0" id="rn-quote">
+                    
+                </select>
+                <a id="quote" href="#" class="btn btn-primary">Get Quote</a>
             </div>
             
             <div class="form-group">
@@ -63,8 +71,23 @@
             
             <div class="form-group">
                 <label for="by-entry">By Entry</label>
-                <input id="by-entry" class="form-control" type="number" placeholder="entry" value="1" min="1">
+                <input id="by-entry" class="form-control" type="number" placeholder="entry" value="1" min="1" max="100">
                 <a id="entry" class="btn btn-primary">Get Entry</a>
+            </div>
+            
+            <div class="form-group" id="entry-range-container">
+                <h4>Range of Words</h4>
+                
+                <div>
+                    <label for="entry-range-min">Min Value</label>
+                    <input id="entry-range-min" class="form-control" type="number" placeholder="entry" value="1" min="1" max="99">
+                </div>
+                <div>
+                    <label for="entry-range-max">Max Value</label>
+                    <input id="entry-range-max" class="form-control" type="number" placeholder="entry" value="2" min="2" max="100">
+                </div>
+                
+                <div><a id="entry-range" class="btn btn-primary">Get List</a></div>
             </div>
             
             <div class="form-group">

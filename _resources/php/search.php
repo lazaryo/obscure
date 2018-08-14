@@ -1,6 +1,7 @@
 <?php
     // Connect to DB
-	include 'hupd.php';
+//	include '../hupd.php';
+	include 'hupd-dev.php';
 
     // set the base url for the api
     function url() {
@@ -18,7 +19,7 @@
     try{
         if(isset($_REQUEST['term'])){
             // create prepared statement
-            $sql = "SELECT * FROM words WHERE title LIKE :term";
+            $sql = "SELECT * FROM words WHERE title LIKE :term ORDER BY entry";
             $stmt = $pdo->prepare($sql);
             $term = '%' . $_REQUEST['term'] . '%';
             // bind parameters to statement

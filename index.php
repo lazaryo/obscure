@@ -4,7 +4,7 @@
         <meta charset="utf-8" />
         <title>Obscure Sorrows Dictionary API</title>
         <link rel="stylesheet" href="_resources/libs/bootstrap/bootstrap-4.0.0-alpha.6.min.css">
-        <link rel="stylesheet" href="_resources/libs/fontawesome/font-awesome-4.6.1.min.css">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="_resources/css/global.css" type="text/css">
     </head>
     
