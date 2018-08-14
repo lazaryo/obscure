@@ -153,24 +153,24 @@
             if ($stmt->rowCount() > 0) {
                 while ($row = $stmt->fetch()) {
                     if ($row['hasQuotes']) {
+                        $hasQuotes = $row['hasQuotes'];
                         if (tableExists($pdo, $word)) {
                             $prestmt = 'SELECT id FROM ' . $word . ' ORDER BY id DESC LIMIT 0, 1';
-
                             $stmt = $pdo->query($prestmt);
                             while ($row = $stmt->fetch()) {
                                 $max = $row['id'];
                             }
-                            $pdo = $row = $stmt = null;
 
                             $rn = $n = rand(1, $max);
                             
-                            $pdo = new PDO($dsn, $user, $pass, $opt);
                             $prestmt = "SELECT * FROM " . $word . " WHERE id = " . $rn;
 
                             $stmt = $pdo->query($prestmt);
-                            $row = $stmt->fetch();
-                            echo json_encode($row, JSON_PRETTY_PRINT);
-                            $pdo = $row = $stmt = null;
+                            while ($row = $stmt->fetch()) {
+                                $randomQuote = array('word'=> $word, 'hasQuotes'=> $hasQuotes, 'quote'=> $row['quote'], 'video'=> $row['video'], 'error'=> null);
+                                echo json_encode($randomQuote, JSON_PRETTY_PRINT);
+                            };
+                            $pdo = null;
                             
                         } else {
                             $prestmt = 'SELECT * FROM words WHERE title = ?';
