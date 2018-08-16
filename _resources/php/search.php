@@ -1,7 +1,7 @@
 <?php
     // Connect to DB
-//	include '../hupd.php';
-	include 'hupd-dev.php';
+//	include 'connect.php';
+	include 'connect-dev.php';
 
     // set the base url for the api
     function url() {
