@@ -141,68 +141,70 @@
         }
     });
                   
-//    Flight::route('/quote(/@word)', function($word){
-////        include_once '../_resources/php/connect.php';
-//        include_once '../_resources/php/connect-dev.php';
-//        
-//        if (!empty($word)) {
-//            $prestmt = 'SELECT * FROM words WHERE title = ?';
-//
-//            $stmt = $pdo->prepare($prestmt);
-//            $stmt->execute([$word]);
-//            if ($stmt->rowCount() > 0) {
-//                while ($row = $stmt->fetch()) {
-//                    if ($row['hasQuotes']) {
-//                        $hasQuotes = $row['hasQuotes'];
-//                        if (tableExists($pdo, $word)) {
-//                            $prestmt = 'SELECT id FROM ' . $word . ' ORDER BY id DESC LIMIT 0, 1';
-//                            $stmt = $pdo->query($prestmt);
-//                            while ($row = $stmt->fetch()) {
-//                                $max = $row['id'];
-//                            }
-//
-//                            $rn = $n = rand(1, $max);
-//                            
-//                            $prestmt = "SELECT * FROM " . $word . " WHERE id = " . $rn;
-//
-//                            $stmt = $pdo->query($prestmt);
-//                            while ($row = $stmt->fetch()) {
-//                                $randomQuote = array('word'=> $word, 'hasQuotes'=> $hasQuotes, 'quote'=> $row['quote'], 'video'=> $row['video'], 'error'=> null);
-//                                echo json_encode($randomQuote, JSON_PRETTY_PRINT);
-//                            };
-//                            $pdo = null;
-//                            
-//                        } else {
-//                            $prestmt = 'SELECT * FROM words WHERE title = ?';
-//
-//                            $stmt = $pdo->prepare($prestmt);
-//                            $stmt->execute([$word]);
-//                            while ($row = $stmt->fetch()) {
-//                                $randomQuote = array('word'=> $row['title'], 'hasQuotes'=> $row['hasQuotes'], 'quote'=> null, 'video'=> $row['video'], 'error'=> 'There are no quotes from this word in the database.');
-//                                echo json_encode($randomQuote, JSON_PRETTY_PRINT);          
-//                            }
-//                        }
-//                    } else {
-//                        $prestmt = 'SELECT * FROM words WHERE title = ?';
-//
-//                        $stmt = $pdo->prepare($prestmt);
-//                        $stmt->execute([$word]);
-//                        while ($row = $stmt->fetch()) {
-//                        $randomQuote = array('word'=> $row['title'], 'hasQuotes'=> $row['hasQuotes'], 'quote'=> null, 'video'=> $row['video'], 'error'=> 'This word does not have any quotes.');
-//                            echo json_encode($randomQuote, JSON_PRETTY_PRINT);          
-//                        }
-//                    }
-//                }
-//            } else {
-//                $badWord = array('word'=> $word, 'hasQuotes'=> null, 'quote'=> null, 'video'=> null, 'error'=> 'This word does not exist in the Dictionary of Obscure Sorrows.');
-//                echo json_encode($badWord, JSON_PRETTY_PRINT);          
-//            };
-//        } else {
-//            $uhOh = array("error"=> "Please choose a word from the Dictionary of Obscure Sorrows.");
-//            echo json_encode($uhOh, JSON_PRETTY_PRINT);
-//        }
-//
-//    });
+    Flight::route('/quote(/@word)', function($word){
+//        include_once '../_resources/php/connect.php';
+        include_once '../_resources/php/connect-dev.php';
+        
+        if (!empty($word)) {
+            $prestmt = 'SELECT * FROM words WHERE title = ?';
+
+            $stmt = $pdo->prepare($prestmt);
+            $stmt->execute([$word]);
+            if ($stmt->rowCount() > 0) {
+                while ($row = $stmt->fetch()) {
+                    if ($row['hasQuotes']) {
+                        $hasQuotes = $row['hasQuotes'];
+                        $nonLatin = $row['non_latin_title'];
+                            
+                        if (tableExists($pdo, $nonLatin)) {
+                            $prestmt = 'SELECT id FROM ' . $nonLatin . ' ORDER BY id DESC LIMIT 0, 1';
+                            $stmt = $pdo->query($prestmt);
+                            while ($row = $stmt->fetch()) {
+                                $max = $row['id'];
+                            }
+
+                            $rn = $n = rand(1, $max);
+                            
+                            $prestmt = "SELECT * FROM " . $nonLatin . " WHERE id = " . $rn;
+
+                            $stmt = $pdo->query($prestmt);
+                            while ($row = $stmt->fetch()) {
+                                $randomQuote = array('word'=> $word, 'hasQuotes'=> $hasQuotes, 'quote'=> $row['quote'], 'video'=> $row['video'], 'error'=> null);
+                                echo json_encode($randomQuote, JSON_PRETTY_PRINT);
+                            };
+                            $pdo = null;
+                            
+                        } else {
+                            $prestmt = 'SELECT * FROM words WHERE title = ?';
+
+                            $stmt = $pdo->prepare($prestmt);
+                            $stmt->execute([$word]);
+                            while ($row = $stmt->fetch()) {
+                                $randomQuote = array('word'=> $row['title'], 'hasQuotes'=> $row['hasQuotes'], 'quote'=> null, 'video'=> $row['video'], 'error'=> 'There are no quotes from this word in the database.');
+                                echo json_encode($randomQuote, JSON_PRETTY_PRINT);          
+                            }
+                        }
+                    } else {
+                        $prestmt = 'SELECT * FROM words WHERE title = ?';
+
+                        $stmt = $pdo->prepare($prestmt);
+                        $stmt->execute([$word]);
+                        while ($row = $stmt->fetch()) {
+                        $randomQuote = array('word'=> $row['title'], 'hasQuotes'=> $row['hasQuotes'], 'quote'=> null, 'video'=> $row['video'], 'error'=> 'This word does not have any quotes.');
+                            echo json_encode($randomQuote, JSON_PRETTY_PRINT);          
+                        }
+                    }
+                }
+            } else {
+                $badWord = array('word'=> $word, 'hasQuotes'=> null, 'quote'=> null, 'video'=> null, 'error'=> 'This word does not exist in the Dictionary of Obscure Sorrows.');
+                echo json_encode($badWord, JSON_PRETTY_PRINT);          
+            };
+        } else {
+            $uhOh = array("error"=> "Please choose a word from the Dictionary of Obscure Sorrows.");
+            echo json_encode($uhOh, JSON_PRETTY_PRINT);
+        }
+
+    });
 
     Flight::route('/dictionary/letter(/@letter)', function($letter){
 //        include_once '../_resources/php/connect.php';
@@ -295,7 +297,7 @@
         // Try a select statement against the table
         // Run it in try/catch in case PDO is in ERRMODE_EXCEPTION.
         try {
-            $result = $pdo->query("SELECT 1 FROM $table LIMIT 1");
+            $result = $pdo->query("SELECT 1 FROM " . $table . " LIMIT 1");
         } catch (Exception $e) {
             // We got an exception == table not found
             return FALSE;
@@ -303,10 +305,6 @@
 
         // Result is either boolean FALSE (no table found) or PDOStatement Object (table found)
         return $result !== FALSE;
-    }
-
-    function modify($str) {
-        return str_replace(" ", "_", $str);
     }
 
 ?>
