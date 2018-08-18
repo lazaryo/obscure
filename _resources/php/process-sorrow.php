@@ -1,49 +1,48 @@
 <?php
+    // Connect to DB
+//	include 'connect.php';
+	include 'connect-dev.php';
+
 	$title = $_POST['sorrow-title'];
+	$nonLatin = $_POST['sorrow-title'];
 	$author = $_POST['sorrow-author'];
 	$authorPicture = $_POST['sorrow-author-picture'];
 	$definition = $_POST['sorrow-definition'];
 	$speech = $_POST['sorrow-speech'];
 	$entry = $_POST['sorrow-entry'];
 
-//	 echo '<pre>';
-//		 print_r($_POST);
-//	 echo '</pre>';
+    if (isset($_POST['sorrow-video'])) {
+        $video = $_POST['sorrow-video'];
+    } else {
+        $video = NULL;
+    }
 
-	$servername = "localhost";
-	$username = "root";
-	$password = "root";
-	$dbname = "obscure_sorrows";
+    if ($_POST['sorrow-quotes']) {
+        $hasQuotes = 1;
+    } else {
+        $hasQuotes = 0;
+    }
 
-	try {
-		$conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-			// set the PDO error mode to exception
-		$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-			// echo "Connected successfully"; 
+    $data = [
+        'title' => $title,
+        'nonLatin' => $nonLatin,
+        'author' => $author,
+        'authorPicture' => $authorPicture,
+        'definition' => $definition,
+        'speech' => $speech,
+        'video' => $video,
+        'entry' => $entry,
+        'hasQuotes' => $hasQuotes
+    ];
 
-		$stmt = $conn->prepare("INSERT INTO words (title, author, authorPicture, definition, speech, video, entry) 
-			VALUES (:title, :author, :authorPicture, :definition, :speech, :video, :entry)");
-		$stmt->bindParam(':title', $title);
-		$stmt->bindParam(':author', $author);
-		$stmt->bindParam(':authorPicture', $authorPicture);
-		$stmt->bindParam(':definition', $definition);
-		$stmt->bindParam(':speech', $speech);
-        
-        if (isset($_POST['sorrow-video'])) {
-		  $stmt->bindParam(':video', $video);
-        } else {
-            $stmt->bindParam(':video', NULL);
-        }
-        
-		$stmt->bindParam(':entry', $entry);
+    echo '<pre>';
+    print_r($data);
+    echo '</pre>';
 
-		$stmt->execute();
-        
-        echo $title . ' was successfully added to the database.';
-	} catch(PDOException $e) {
-		echo "Connection failed: " . $e->getMessage();
-	}
+    $prestmt = "INSERT INTO words (title, non_latin_title, author, authorPicture, definition, speech, video, entry, hasQuotes) VALUES (:title, :nonLatin, :author, :authorPicture, :definition, :speech, :video, :entry, :hasQuotes)";
+    $stmt = $pdo->prepare($prestmt);
+    $stmt->execute($data);
 
-	// End connection
-	$conn = null;
+    echo '<p>all good</p>';
+    $pdo = null;
 ?>

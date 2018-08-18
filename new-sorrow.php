@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <title>Obscure Sorrows Dictionary API</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
         <link href="_resources/css/global.css" rel="stylesheet" type="text/css" />
     </head>
@@ -11,19 +11,19 @@
     <body>
         <div class="wrapper container-fluid">
             <h1>Add another Obscure Sorrow</h1>
-            <form id="sorrow-form" method="post" action="_resources/process-sorrow.php">
+            <form id="sorrow-form" method="post" action="_resources/php/process-sorrow.php">
                 <div class="form-group">
                     <label for="sorrow-title">Title</label>
                     <input type="text" class="form-control" id="sorrow-title" name="sorrow-title" placeholder="Obscure Sorrows">
                 </div>
                 
                 <div class="form-group">
-                    <label for="sorrow-title">Author</label>
+                    <label for="sorrow-author">Author</label>
                     <input type="text" class="form-control" id="sorrow-author" value="John Koenig" name="sorrow-author">
                 </div>
                 
                 <div class="form-group">
-                    <label for="sorrow-title">Author Picture</label>
+                    <label for="sorrow-author-picture">Author Picture</label>
                     <input type="text" class="form-control" id="sorrow-author-picture" name="sorrow-author-picture" value="https://ideasofthevagabond.files.wordpress.com/2014/10/john-koenig.jpg">
                 </div>
                 
@@ -40,8 +40,24 @@
                 </select>
                 
                 <div class="form-group">
-                    <label for="sorrow-title">Video Link</label>
+                    <label for="sorrow-video">Video Link</label>
                     <input type="link" class="form-control" id="sorrow-link" name="sorrow-video" placeholder="http://link-to-video.com/">
+                </div>   
+                             
+                <div class="form-group">
+                    <label for="sorrow-quotes">Has Quotes</label>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="sorrow-quotes" id="hasQuotes" value="true" checked>
+                      <label class="form-check-label" for="hasQuotes">
+                    Yes
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="sorrow-quotes" id="noQuotes" value="false">
+                      <label class="form-check-label" for="noQuotes">
+                    No
+                      </label>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -57,8 +73,8 @@
         
         <script src="https://code.jquery.com/jquery-3.1.0.min.js" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-        <script src="../_resources/clipboardjs/clipboard.min.js"></script>
-        <script src="../_resources/js/global.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <script src="_resources/libs/clipboardjs/clipboard.min.js"></script>
+        <script src="_resources/js/global.js"></script>
     </body>
 </html>

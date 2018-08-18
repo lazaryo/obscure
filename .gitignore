@@ -3,10 +3,9 @@ api/vendor/
 api/error_log
 word.php
 new-sorrow.php
-_resources/quotes.json
 _resources/php/connect.php
 _resources/php/hupd.php
 _resources/php/search.backup.php
+_resources/php/process-sorrow.php
 api/composer.lock
 api/views/home-backup.php
-updated-db-data.sql
