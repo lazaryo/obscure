@@ -61,6 +61,9 @@ $(function() {
                 // Display the returned data in browser
                 $(".search-results").addClass('show');
                 $(".search-results").html(data);
+                    $('.btn').on('click', function() {
+                        notification('link copied');
+                    });
             });
             $('#other-form').show();
         } else{
@@ -75,14 +78,14 @@ $(function() {
         contentType: "application/json",
         dataType: "json",
         success: function (sorrows) {
-            //console.log(sorrows);
+            const wordCount = Object.keys(sorrows).length;
+            
             // set the max attr value for the entry
-//            $('#by-entry').attr('max', sorrows.length);
-//            $('#entry-range-min').attr('max', (sorrows.length - 1);
-//            $('#entry-range-max').attr('max', sorrows.length);
+            $('#by-entry').attr({'max': wordCount});
+            $('#entry-range-min').attr({'max': (wordCount - 1)});
+            $('#entry-range-max').attr({'max': wordCount});
             
             for (let sorrow of Object.values(sorrows)) {
-                //console.log(sorrow);
                 if (sorrow.entry == 1) {
                     $('#by-sorrow').append('<option value="' + sorrow.title + '" selected>' + sorrow.title + '</option>');
                 } else {
@@ -110,17 +113,14 @@ $(function() {
         contentType: "application/json",
         dataType: "json",
         success: function (sorrows) {
-//            console.log(sorrows);
             var filteredSorrows = [];
             
             for (let sorrow of Object.values(sorrows)) {
-                //console.log(sorrow);
                 if (sorrow.hasQuotes == 1) {
                     filteredSorrows.push(sorrow);
                     $('#rn-quote').append('<option value="' + sorrow.title + '">' + sorrow.title + '</option>');
                 }
             }
-            //console.log(filteredSorrow);
             
             let rnWord = $('#rn-quote').val();
             $('#quote').attr('href', 'quote/' + rnWord);
@@ -135,5 +135,11 @@ $(function() {
         console.log('Error Loading Obscure Sorrow Data');
     })
     .done(function () {});
-
+    
 });
+
+    
+function notification(message) {
+    $("<div />", { class: 'notificationBar', text: message }).hide().prependTo("body")
+    .slideDown('fast').delay(2000).slideUp(function() { $(this).remove(); });
+}

@@ -71,7 +71,7 @@
             
             <div class="form-group">
                 <label for="by-entry">By Entry</label>
-                <input id="by-entry" class="form-control" type="number" placeholder="entry" value="1" min="1" max="100">
+                <input id="by-entry" class="form-control" type="number" placeholder="entry" value="1" min="1">
                 <a id="entry" class="btn btn-primary">Get Entry</a>
             </div>
             
@@ -80,11 +80,11 @@
                 
                 <div>
                     <label for="entry-range-min">Min Value</label>
-                    <input id="entry-range-min" class="form-control" type="number" placeholder="entry" value="1" min="1" max="99">
+                    <input id="entry-range-min" class="form-control" type="number" placeholder="entry" value="1" min="1">
                 </div>
                 <div>
                     <label for="entry-range-max">Max Value</label>
-                    <input id="entry-range-max" class="form-control" type="number" placeholder="entry" value="2" min="2" max="100">
+                    <input id="entry-range-max" class="form-control" type="number" placeholder="entry" value="2" min="2">
                 </div>
                 
                 <div><a id="entry-range" class="btn btn-primary">Get List</a></div>
